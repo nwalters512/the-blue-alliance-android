@@ -48,9 +48,9 @@ public class APICache implements APIv2 {
         String where = String.format("%1$s >= ? AND %1$s <= ?", TeamsTable.NUMBER);
         int startNum = 500 * pageNum;
         return Observable.just(mDb.getTeamsTable().getForQuery(
-          null,
-          where,
-          new String[]{Integer.toString(startNum), Integer.toString(startNum + 499)}));
+                null,
+                where,
+                new String[]{Integer.toString(startNum), Integer.toString(startNum + 499)}));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class APICache implements APIv2 {
     public Observable<List<Media>> fetchTeamMediaInYear(String teamKey, int year) {
         String where = MediasTable.TEAMKEY + " = ? AND " + MediasTable.YEAR + " = ?";
         return Observable.just(mDb.getMediasTable().getForQuery(null, where, new String[]{teamKey,
-          Integer.toString(year)}));
+                Integer.toString(year)}));
     }
 
     @Override
@@ -108,14 +108,17 @@ public class APICache implements APIv2 {
     public Observable<List<Event>> fetchEventsInYear(int year) {
         String where = String.format("%1$s = ?", EventsTable.YEAR);
         return Observable.just(
-          mDb.getEventsTable().getForQuery(null, where, new String[]{Integer.toString(year)}));
+                mDb.getEventsTable().getForQuery(null, where, new String[]{Integer.toString(year)}));
     }
 
     public Observable<List<Event>> fetchEventsInWeek(int year, int week) {
-        String where =
-          String.format("%1$s = ? AND %2$s = ?", EventsTable.YEAR, EventsTable.WEEK);
-        return Observable.just(mDb.getEventsTable()
-          .getForQuery(null, where, new String[]{Integer.toString(year), Integer.toString(week)}));
+        String where = String.format("%1$s = ? AND %2$s = ?", EventsTable.YEAR, EventsTable.WEEK);
+        return Observable.just(mDb.getEventsTable().getForQuery(null, where, new String[]{Integer.toString(year), Integer.toString(week)}));
+    }
+
+    public Observable<List<Event>> fetchSimpleEventsInWeek(int year, int week) {
+        String where = String.format("%1$s = ? AND %2$s = ?", EventsTable.YEAR, EventsTable.WEEK);
+        return Observable.just(mDb.getEventsTable().getForQuery(EventsTable.SIMPLE_MODEL_COLUMNS, where, new String[]{Integer.toString(year), Integer.toString(week)}));
     }
 
     public Observable<List<Event>> fetchEventsInMonth(int year, int month) {
@@ -127,11 +130,27 @@ public class APICache implements APIv2 {
         String end = Long.toString(cal.getTimeInMillis());
 
         String where = String.format(
-          "%1$s >= ? AND %2$s < ?",
-          EventsTable.START,
-          EventsTable.END);
+                "%1$s >= ? AND %2$s < ?",
+                EventsTable.START,
+                EventsTable.END);
         return Observable.just(mDb.getEventsTable()
-          .getForQuery(null, where, new String[]{start, end}));
+                .getForQuery(null, where, new String[]{start, end}));
+    }
+
+    public Observable<List<Event>> fetchSimpleEventsInMonth(int year, int month) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, 1);
+        String start = Long.toString(cal.getTimeInMillis());
+        cal.add(Calendar.MONTH, 1);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        String end = Long.toString(cal.getTimeInMillis());
+
+        String where = String.format(
+                "%1$s >= ? AND %2$s < ?",
+                EventsTable.START,
+                EventsTable.END);
+        return Observable.just(mDb.getEventsTable()
+                .getForQuery(EventsTable.SIMPLE_MODEL_COLUMNS, where, new String[]{start, end}));
     }
 
     @Override
@@ -150,7 +169,7 @@ public class APICache implements APIv2 {
     public Observable<JsonArray> fetchEventRankings(String eventKey) {
         try {
             Event event = mDb.getEventsTable()
-              .get(eventKey, new String[]{EventsTable.RANKINGS});
+                    .get(eventKey, new String[]{EventsTable.RANKINGS});
             if (event != null) {
                 return Observable.just(event.getRankings());
             }
@@ -164,14 +183,14 @@ public class APICache implements APIv2 {
     public Observable<List<Match>> fetchEventMatches(String eventKey) {
         String where = String.format("%1$s = ?", MatchesTable.EVENT);
         return Observable.just(
-          mDb.getMatchesTable().getForQuery(null, where, new String[]{eventKey}));
+                mDb.getMatchesTable().getForQuery(null, where, new String[]{eventKey}));
     }
 
     @Override
     public Observable<JsonObject> fetchEventStats(String eventKey) {
         try {
             Event event = mDb.getEventsTable()
-              .get(eventKey, new String[]{EventsTable.STATS});
+                    .get(eventKey, new String[]{EventsTable.STATS});
             if (event != null) {
                 return Observable.just(event.getStats());
             }
@@ -185,7 +204,7 @@ public class APICache implements APIv2 {
     public Observable<List<Award>> fetchEventAwards(String eventKey) {
         String where = String.format("%1$s = ?", AwardsTable.EVENTKEY);
         return Observable.just(
-          mDb.getAwardsTable().getForQuery(null, where, new String[]{eventKey}));
+                mDb.getAwardsTable().getForQuery(null, where, new String[]{eventKey}));
     }
 
     @Override
@@ -202,31 +221,31 @@ public class APICache implements APIv2 {
     public Observable<List<District>> fetchDistrictList(int year) {
         String where = String.format("%1$s = ?", DistrictsTable.YEAR);
         return Observable.just(
-          mDb.getDistrictsTable().getForQuery(null, where, new String[]{Integer.toString(year)}));
+                mDb.getDistrictsTable().getForQuery(null, where, new String[]{Integer.toString(year)}));
     }
 
     @Override
     public Observable<List<Event>> fetchDistrictEvents(String districtShort, int year) {
         String where =
-          String.format("$1%s = ? AND %2$s = ?", EventsTable.YEAR, EventsTable.DISTRICT);
+                String.format("$1%s = ? AND %2$s = ?", EventsTable.YEAR, EventsTable.DISTRICT);
         int districtEnum = DistrictHelper.DISTRICTS.fromAbbreviation(districtShort).ordinal();
         return Observable.just(mDb.getEventsTable().getForQuery(
-          null,
-          where,
-          new String[]{Integer.toString(year), Integer.toString(districtEnum)}));
+                null,
+                where,
+                new String[]{Integer.toString(year), Integer.toString(districtEnum)}));
     }
 
     @Override
     public Observable<List<DistrictTeam>> fetchDistrictRankings(String districtShort, int year) {
         String where = String.format(
-          "%1$s = ? AND %2$s = ?",
-          DistrictTeamsTable.YEAR,
-          DistrictTeamsTable.DISTRICT_ENUM);
+                "%1$s = ? AND %2$s = ?",
+                DistrictTeamsTable.YEAR,
+                DistrictTeamsTable.DISTRICT_ENUM);
         int districtEnum = DistrictHelper.DISTRICTS.fromAbbreviation(districtShort).ordinal();
         return Observable.just(mDb.getDistrictTeamsTable().getForQuery(
-          null,
-          where,
-          new String[]{Integer.toString(year), Integer.toString(districtEnum)}));
+                null,
+                where,
+                new String[]{Integer.toString(year), Integer.toString(districtEnum)}));
     }
 
     @Override

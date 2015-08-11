@@ -38,6 +38,8 @@ public class EventsTable extends ModelTable<Event> {
             STATS = "stats",
             WEBSITE = "website";
 
+    public static final String[] SIMPLE_MODEL_COLUMNS = {EventsTable.NAME, EventsTable.SHORTNAME, EventsTable.KEY, EventsTable.LOCATION, EventsTable.START, EventsTable.END, EventsTable.WEEK, EventsTable.TYPE, EventsTable.DISTRICT, EventsTable.DISTRICT_STRING};
+
     private SQLiteDatabase mDb;
 
     public EventsTable(SQLiteDatabase db){

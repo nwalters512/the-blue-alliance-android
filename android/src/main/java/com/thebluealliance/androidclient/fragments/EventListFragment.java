@@ -68,9 +68,11 @@ public class EventListFragment extends ListviewFragment<List<Event>, EventListSu
     @Override
     protected Observable<List<Event>> getObservable() {
         if (mMonth != -1) {
-            return mDatafeed.getCache().fetchEventsInMonth(mYear, mMonth);
+            //return mDatafeed.getCache().fetchEventsInMonth(mYear, mMonth);
+            return mDatafeed.getCache().fetchSimpleEventsInMonth(mYear, mMonth);
         } else {
-            return mDatafeed.getCache().fetchEventsInWeek(mYear, mWeek);
+            //return mDatafeed.getCache().fetchEventsInWeek(mYear, mWeek);
+            return mDatafeed.getCache().fetchSimpleEventsInWeek(mYear, mWeek);
         }
     }
 }
