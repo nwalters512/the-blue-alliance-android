@@ -41,7 +41,7 @@ public class MatchListElement extends ListElement implements Serializable {
     @Override
     public View getView(final Context context, LayoutInflater inflater, View convertView) {
         if (convertView == null || !(convertView instanceof MatchView)) {
-            convertView = inflater.inflate(R.layout.match_view, null);
+            convertView = inflater.inflate(R.layout.list_item_match, null);
         }
         MatchView match = (MatchView) convertView;
         boolean played = false;

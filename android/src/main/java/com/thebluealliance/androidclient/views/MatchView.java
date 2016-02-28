@@ -45,7 +45,7 @@ public class MatchView extends FrameLayout {
 
     private void init() {
         // Inflate the layout
-        LayoutInflater.from(getContext()).inflate(R.layout.list_item_match, this, true);
+        LayoutInflater.from(getContext()).inflate(R.layout.match_view, this, true);
 
         // Grab references to child views to avoid repeated calls to findViewById
         matchContainer = findViewById(R.id.match_container);
