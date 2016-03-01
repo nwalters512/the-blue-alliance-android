@@ -48,7 +48,7 @@ def notify(message_type, json_data):
     
     print "\nSending " + message_type + " broadcast"
 
-    subprocess.call(["adb", "shell", command])
+    subprocess.call(["adb", "-d", "shell", command])
 
 def get_notification_commands():
     commands = []
