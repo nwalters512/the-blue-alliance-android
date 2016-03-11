@@ -1,5 +1,6 @@
 package com.thebluealliance.androidclient.binders;
 
+import com.thebluealliance.androidclient.Constants;
 import com.thebluealliance.androidclient.R;
 import com.thebluealliance.androidclient.adapters.EventStatsFragmentAdapter;
 import com.thebluealliance.androidclient.adapters.ListViewAdapter;
@@ -7,9 +8,12 @@ import com.thebluealliance.androidclient.listitems.ListItem;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -22,6 +26,7 @@ public class StatsListBinder extends ListViewBinder implements RadioGroup.OnChec
     @Bind(R.id.stats_type_selector) RadioGroup mSelectorGroup;
     @Bind(R.id.show_event_stats) RadioButton mShowEventStats;
     @Bind(R.id.show_team_stats) RadioButton mShowTeamStats;
+    @Bind(R.id.stats_type_selector_container) View mSelectorContainer;
 
     private ListPair<ListItem> mData;
     private Menu mMenu;
@@ -91,5 +96,4 @@ public class StatsListBinder extends ListViewBinder implements RadioGroup.OnChec
             }
         }
     }
-
 }

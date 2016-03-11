@@ -393,6 +393,7 @@ public class Match extends BasicModel<Match> {
      * @return A MatchListElement to be used to display this match
      */
     public MatchListElement render(boolean showVideo, boolean showHeaders, boolean showMatchTitle, boolean clickable) {
+        Log.d(Constants.LOG_TAG, "Rendering match " + getKey());
         JsonObject alliances;
         try {
             alliances = getAlliances();

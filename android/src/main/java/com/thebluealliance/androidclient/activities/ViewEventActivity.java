@@ -10,6 +10,8 @@ import com.thebluealliance.androidclient.di.components.DaggerFragmentComponent;
 import com.thebluealliance.androidclient.di.components.FragmentComponent;
 import com.thebluealliance.androidclient.di.components.HasFragmentComponent;
 import com.thebluealliance.androidclient.eventbus.ActionBarTitleEvent;
+import com.thebluealliance.androidclient.eventbus.TabLeavingEvent;
+import com.thebluealliance.androidclient.eventbus.TabSelectedAndSettledEvent;
 import com.thebluealliance.androidclient.helpers.ConnectionDetector;
 import com.thebluealliance.androidclient.helpers.EventHelper;
 import com.thebluealliance.androidclient.listeners.ClickListenerModule;
@@ -27,6 +29,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 
+import javax.inject.Inject;
+
+import de.greenrobot.event.EventBus;
+
 public class ViewEventActivity extends MyTBASettingsActivity
         implements ViewPager.OnPageChangeListener, HasFragmentComponent {
 
@@ -37,6 +43,7 @@ public class ViewEventActivity extends MyTBASettingsActivity
     private int mSelectedTab;
     private ViewPager pager;
     private ViewEventFragmentPagerAdapter adapter;
+    private SlidingTabs mTabs;
     private boolean isDistrict;
     private FragmentComponent mComponent;
 
@@ -83,10 +90,10 @@ public class ViewEventActivity extends MyTBASettingsActivity
         pager.setOffscreenPageLimit(10);
         pager.setPageMargin(Utilities.getPixelsFromDp(this, 16));
 
-        SlidingTabs tabs = (SlidingTabs) findViewById(R.id.tabs);
-        tabs.setOnPageChangeListener(this);
-        tabs.setViewPager(pager);
-        ViewCompat.setElevation(tabs, getResources().getDimension(R.dimen.toolbar_elevation));
+        mTabs = (SlidingTabs) findViewById(R.id.tabs);
+        mTabs.setOnPageChangeListener(this);
+        mTabs.setViewPager(pager);
+        ViewCompat.setElevation(mTabs, getResources().getDimension(R.dimen.toolbar_elevation));
 
         pager.setCurrentItem(mSelectedTab);  // Do this after we set onPageChangeListener, so that FAB gets hidden, if needed
 
@@ -225,7 +232,17 @@ public class ViewEventActivity extends MyTBASettingsActivity
 
     @Override
     public void onPageScrollStateChanged(int state) {
+        if (state == ViewPager.SCROLL_STATE_IDLE) {
+            mEventBus.post(new TabSelectedAndSettledEvent(mSelectedTab));
 
+            if (mSelectedTab == ViewEventFragmentPagerAdapter.TAB_STATS) {
+                ViewCompat.setElevation(mTabs, 0);
+            } else {
+                ViewCompat.setElevation(mTabs, getResources().getDimension(R.dimen.toolbar_elevation));
+            }
+        } else if (state == ViewPager.SCROLL_STATE_DRAGGING) {
+            mEventBus.post(new TabLeavingEvent());
+        }
     }
 
     @SuppressWarnings("unused")

@@ -7,7 +7,10 @@ import com.thebluealliance.androidclient.R;
 import com.thebluealliance.androidclient.activities.TeamAtEventActivity;
 import com.thebluealliance.androidclient.adapters.EventStatsFragmentAdapter;
 import com.thebluealliance.androidclient.adapters.ListViewAdapter;
+import com.thebluealliance.androidclient.adapters.ViewEventFragmentPagerAdapter;
 import com.thebluealliance.androidclient.binders.StatsListBinder;
+import com.thebluealliance.androidclient.eventbus.TabLeavingEvent;
+import com.thebluealliance.androidclient.eventbus.TabSelectedAndSettledEvent;
 import com.thebluealliance.androidclient.fragments.DatafeedFragment;
 import com.thebluealliance.androidclient.helpers.EventHelper;
 import com.thebluealliance.androidclient.helpers.TeamHelper;
@@ -19,6 +22,7 @@ import com.thebluealliance.androidclient.views.NoDataView;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.SparseArray;
@@ -28,6 +32,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
@@ -45,7 +52,7 @@ import rx.Observable;
  * @author Nathan Walters
  */
 public class EventStatsFragment
-  extends DatafeedFragment<JsonElement, List<ListItem>, StatsListSubscriber, StatsListBinder> {
+        extends DatafeedFragment<JsonElement, List<ListItem>, StatsListSubscriber, StatsListBinder> {
 
     private static final String KEY = "eventKey", SORT = "sort";
 
@@ -59,6 +66,10 @@ public class EventStatsFragment
     private RadioGroup mRadioGroup;
     private String mStatSortCategory;
     private int mSelectedStatSort = -1;
+
+    private View mSelectorGroup, mSelectorContainer;
+    private boolean mHasCapturedHeightOfContainer = false;
+    private int mOriginalStatsTypeSelectionContainerHeight;
 
     /**
      * Creates new event stats fragment for an event.
@@ -88,7 +99,7 @@ public class EventStatsFragment
         if (mSelectedStatSort == -1) {
             /* Sort has not yet been set. Default to OPR */
             mSelectedStatSort = Arrays.binarySearch(getResources().getStringArray(R.array.statsDialogArray),
-              getString(R.string.dialog_stats_sort_opr));
+                    getString(R.string.dialog_stats_sort_opr));
         }
 
         // Setup stats sort dialog box
@@ -96,17 +107,17 @@ public class EventStatsFragment
         mStatSortCategory = getSortTypeFromPosition(mSelectedStatSort);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.dialog_stats_title)
-          .setSingleChoiceItems(mItems, mSelectedStatSort, (dialogInterface, i) -> {
-              mSelectedStatSort = i;
-              mStatSortCategory = getSortTypeFromPosition(mSelectedStatSort);
+                .setSingleChoiceItems(mItems, mSelectedStatSort, (dialogInterface, i) -> {
+                    mSelectedStatSort = i;
+                    mStatSortCategory = getSortTypeFromPosition(mSelectedStatSort);
 
-              dialogInterface.dismiss();
+                    dialogInterface.dismiss();
 
-              mAdapter = (EventStatsFragmentAdapter) mListView.getAdapter();
-              if (mAdapter != null && mStatSortCategory != null) {
-                  mAdapter.sortStats(mStatSortCategory);
-              }
-          }).setNegativeButton(R.string.dialog_cancel, (dialog, id) -> {
+                    mAdapter = (EventStatsFragmentAdapter) mListView.getAdapter();
+                    if (mAdapter != null && mStatSortCategory != null) {
+                        mAdapter.sortStats(mStatSortCategory);
+                    }
+                }).setNegativeButton(R.string.dialog_cancel, (dialog, id) -> {
             dialog.cancel();
         });
 
@@ -114,13 +125,6 @@ public class EventStatsFragment
         setHasOptionsMenu(true);
         mSubscriber.setStatToSortBy(mStatSortCategory);
         mSubscriber.setEventYear(EventHelper.getYear(mEventKey));
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.stats_sort_menu, menu);
-        inflater.inflate(R.menu.stats_help_menu, menu);
-        mBinder.setMenu(menu);
     }
 
     @Override
@@ -157,7 +161,36 @@ public class EventStatsFragment
             }
         });
 
+        mSelectorContainer = view.findViewById(R.id.stats_type_selector_container);
+        mSelectorGroup = view.findViewById(R.id.stats_type_selector);
+
+        mSelectorContainer.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener(){
+
+                    @Override
+                    public void onGlobalLayout() {
+                        mOriginalStatsTypeSelectionContainerHeight = mSelectorContainer.getHeight();
+                        mHasCapturedHeightOfContainer = true;
+
+                        mSelectorContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        mSelectorContainer.setVisibility(View.GONE);
+                    }
+
+                });
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mEventBus.register(this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.stats_sort_menu, menu);
+        inflater.inflate(R.menu.stats_help_menu, menu);
+        mBinder.setMenu(menu);
     }
 
     @Override
@@ -190,6 +223,8 @@ public class EventStatsFragment
             mRadioState = new SparseArray<>();
             mRadioGroup.saveHierarchyState(mRadioState);
         }
+
+        mEventBus.unregister(this);
     }
 
     @Override
@@ -223,6 +258,80 @@ public class EventStatsFragment
             return "team";
         }
         return "";
+    }
+
+    public void onEvent(TabSelectedAndSettledEvent e) {
+        if (e.getIndex() == ViewEventFragmentPagerAdapter.TAB_STATS) {
+            // Show selection view
+            if (getView() == null) {
+                return;
+            }
+
+            View selectorContainer = getView().findViewById(R.id.stats_type_selector_container);
+            View selectorGroup = getView().findViewById(R.id.stats_type_selector);
+
+            if (!mHasCapturedHeightOfContainer) {
+                mOriginalStatsTypeSelectionContainerHeight = selectorContainer.getHeight();
+                mHasCapturedHeightOfContainer = true;
+            }
+
+            selectorGroup.setAlpha(0.0f);
+            selectorGroup.animate().alpha(1.0f).setDuration(250).setStartDelay(250).start();
+
+            selectorContainer.setVisibility(View.VISIBLE);
+            Animation anim = new HeightAnimation(selectorContainer, 0, mOriginalStatsTypeSelectionContainerHeight);
+            anim.setDuration(250);
+            selectorContainer.startAnimation(anim);
+        }
+    }
+
+    public void onEvent(TabLeavingEvent e) {
+        // Hide selection view
+        if (getView() == null) {
+            return;
+        }
+
+        View selectorContainer = getView().findViewById(R.id.stats_type_selector_container);
+        View selectorGroup = getView().findViewById(R.id.stats_type_selector);
+
+        if (!mHasCapturedHeightOfContainer) {
+            mOriginalStatsTypeSelectionContainerHeight = selectorContainer.getHeight();
+            mHasCapturedHeightOfContainer = true;
+        }
+
+        selectorGroup.setAlpha(1.0f);
+        selectorGroup.animate().alpha(0.0f).setDuration(250).start();
+
+        Animation anim = new HeightAnimation(selectorContainer, mOriginalStatsTypeSelectionContainerHeight, 0);
+        anim.setDuration(250);
+        anim.setStartOffset(250);
+        selectorContainer.startAnimation(anim);
+    }
+
+
+    public class HeightAnimation extends Animation {
+        protected final int originalHeight;
+        protected final View view;
+        protected float perValue;
+
+        public HeightAnimation(View view, int fromHeight, int toHeight) {
+            this.view = view;
+            this.originalHeight = fromHeight;
+            this.perValue = (toHeight - fromHeight);
+        }
+
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation t) {
+            int height = (int) (originalHeight + perValue * interpolatedTime);
+            //Log.d(Constants.LOG_TAG, "Height: " + height);
+            view.getLayoutParams().height = height;
+            view.requestLayout();
+        }
+
+        @Override
+        public boolean willChangeBounds() {
+            return true;
+        }
     }
 
 }

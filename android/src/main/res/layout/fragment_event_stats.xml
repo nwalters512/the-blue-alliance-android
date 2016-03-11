@@ -1,62 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-    <RadioGroup android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:id="@+id/stats_type_selector"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
-                tools:visibility="visible">
-        <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/show_event_stats"
-                android:text="@string/breakdown_event_stats"/>
-        <RadioButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/show_team_stats"
-                android:checked="true"
-                android:text="@string/breakdown_team_stats"/>
-    </RadioGroup>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/info_container"
-            android:layout_below="@id/stats_type_selector">
+        android:id="@+id/stats_type_selector_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:elevation="4dp">
+
+        <RadioGroup
+            android:id="@+id/stats_type_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <RadioButton
+                android:id="@+id/show_event_stats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/breakdown_event_stats"
+                android:textColor="@color/white" />
+
+            <RadioButton
+                android:id="@+id/show_team_stats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:checked="true"
+                android:text="@string/breakdown_team_stats"
+                android:textColor="@color/white" />
+        </RadioGroup>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/info_container"
+        android:layout_below="@id/stats_type_selector_container">
 
         <ListView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <ProgressBar
-                android:id="@+id/progress"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:visibility="visible" />
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:visibility="visible" />
 
         <com.thebluealliance.androidclient.views.NoDataView
-                android:id="@+id/no_data"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
+            android:id="@+id/no_data"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <TextView
-            android:id="@id/info_container"
-            style="@style/InfoOverlayStyle"
-            android:visibility="gone" />
+        android:id="@id/info_container"
+        style="@style/InfoOverlayStyle"
+        android:visibility="gone" />
 
 </RelativeLayout>
