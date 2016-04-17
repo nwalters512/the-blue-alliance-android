@@ -36,6 +36,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -81,6 +82,8 @@ public class ViewTeamActivity extends MyTBASettingsActivity implements
     @Bind(R.id.year_selector_title) TextView mYearSelectorTitle;
     @Bind(R.id.year_selector_subtitle) TextView mYearSelectorSubtitle;
     @Bind(R.id.view_pager) ViewPager mPager;
+    @Bind(R.id.toolbar) Toolbar mToolbar;
+    @Bind(R.id.tabs) TabLayout mTabs;
 
     private Snackbar mMediaSnackbar;
 
@@ -130,8 +133,7 @@ public class ViewTeamActivity extends MyTBASettingsActivity implements
 
         ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(SELECTED_TAB)) {
@@ -159,10 +161,9 @@ public class ViewTeamActivity extends MyTBASettingsActivity implements
         mAdapter = new ViewTeamFragmentPagerAdapter(getSupportFragmentManager(), mTeamKey, mYear);
         mPager.setAdapter(mAdapter);
 
-        SlidingTabs tabs = (SlidingTabs) findViewById(R.id.tabs);
-        tabs.setViewPager(mPager);
-        tabs.setOnPageChangeListener(this);
-        ViewCompat.setElevation(tabs, getResources().getDimension(R.dimen.toolbar_elevation));
+        mTabs.setupWithViewPager(mPager);
+        mPager.addOnPageChangeListener(this);
+        ViewCompat.setElevation(mTabs, getResources().getDimension(R.dimen.toolbar_elevation));
 
         if (!ConnectionDetector.isConnectedToInternet(this)) {
             showWarningMessage(BaseActivity.WARNING_OFFLINE);

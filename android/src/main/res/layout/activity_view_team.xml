@@ -1,81 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".activities.ViewTeamActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        style="@style/DefaultToolbarStyleWithContentInset"
-        app:contentInsetStart="0dp">
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <LinearLayout
-            android:id="@+id/year_selector_container"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal|left"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
-
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/DefaultToolbarStyleWithContentInset"
+            app:contentInsetStart="0dp"
+            app:layout_scrollFlags="scroll|enterAlways">
 
             <LinearLayout
+                android:id="@+id/year_selector_container"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="vertical">
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal|left"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp">
 
-                <TextView
-                    android:id="@+id/year_selector_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
-                    android:textColor="@color/white" />
 
                 <LinearLayout
-                    android:id="@+id/year_selector_subtitle_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:visibility="gone">
+                    android:layout_gravity="center_vertical"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/year_selector_subtitle"
+                        android:id="@+id/year_selector_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
+                        android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
                         android:textColor="@color/white" />
 
-                    <ImageView
+                    <LinearLayout
+                        android:id="@+id/year_selector_subtitle_container"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/ic_arrow_drop_down_white_24dp" />
+                        android:visibility="gone">
 
+                        <TextView
+                            android:id="@+id/year_selector_subtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle"
+                            android:textColor="@color/white" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/ic_arrow_drop_down_white_24dp" />
+
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+        </android.support.v7.widget.Toolbar>
 
-    </android.support.v7.widget.Toolbar>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
-        android:orientation="vertical">
-
-        <com.thebluealliance.androidclient.views.SlidingTabs
+        <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/primary" />
+            android:layout_height="wrap_content"
+            app:tabMode="scrollable" />
+    </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent" />
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    </LinearLayout>
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
